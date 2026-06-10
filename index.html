@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Академия цифровых мастеров</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold: #FFD700;
+    --gold-dark: #B8860B;
+    --parchment: #1a1408;
+    --bg: #0e0c04;
+    --master1: #E8A020; /* Маэстро Пиксель - золото */
+    --master2: #2E86C1; /* Картограф Орион - синий */
+    --master3: #28B463; /* Механик Спарк - зелёный */
+    --master4: #8E44AD; /* Диджей Нова - фиолетовый */
+    --card: rgba(255,255,255,0.06);
+    --card-border: rgba(255,215,0,0.2);
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #0e0c04 !important;
+    min-height: 100vh;
+    color: #f0e6c0;
+    overflow-x: hidden;
+  }
+
+  html {
+    background: #0e0c04 !important;
+  }
+
+  /* Звёздный фон */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 15% 25%, rgba(255,215,0,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 15%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 45% 70%, rgba(255,215,0,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 85% 55%, rgba(255,255,255,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 25% 85%, rgba(255,215,0,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 40%, rgba(255,255,255,0.2) 0%, transparent 100%),
+      radial-gradient(200px 200px at 10% 10%, rgba(232,160,32,0.08) 0%, transparent 100%),
+      radial-gradient(200px 200px at 90% 90%, rgba(142,68,173,0.08) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .screen {
+    display: none;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+    padding: 20px 16px;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 0.5s ease;
+  }
+  .screen.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ГЕРБ АКАДЕМИИ */
+  .crest {
+    font-size: 64px;
+    text-align: center;
+    margin: 16px 0 8px;
+    animation: float 4s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px rgba(255,215,0,0.6));
+    line-height: 1;
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-10px) rotate(2deg); }
+  }
+
+  /* ЗАГОЛОВКИ */
+  .academy-title {
+    font-size: 22px;
+    font-weight: 900;
+    text-align: center;
+    color: var(--gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    text-shadow: 0 0 20px rgba(255,215,0,0.4);
+  }
+
+  .academy-sub {
+    font-size: 12px;
+    color: rgba(240,230,192,0.5);
+    text-align: center;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  /* СВИТОК - пузырь речи */
+  .scroll {
+    background: linear-gradient(135deg, rgba(232,160,32,0.15), rgba(142,68,173,0.15));
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 16px;
+    padding: 14px 18px;
+    margin: 0 auto 20px;
+    max-width: 340px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.6;
+    color: #f0e6c0;
+    width: 100%;
+  }
+
+  /* КАРТА АКАДЕМИИ */
+  .academy-map {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    max-width: 340px;
+    margin-bottom: 20px;
+  }
+
+  .master-card {
+    background: var(--card);
+    border: 2px solid var(--card-border);
+    border-radius: 16px;
+    padding: 16px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .master-card.locked {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .master-card.completed {
+    border-color: var(--gold);
+    background: rgba(255,215,0,0.1);
+  }
+
+  .master-card.active-master {
+    border-color: var(--gold);
+    box-shadow: 0 0 20px rgba(255,215,0,0.3);
+    transform: scale(1.02);
+  }
+
+  .master-emoji { font-size: 36px; display: block; margin-bottom: 6px; line-height: 1; }
+  .master-name { font-size: 11px; font-weight: 800; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+  .master-skill { font-size: 10px; color: rgba(240,230,192,0.6); }
+
+  .badge-overlay {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    font-size: 20px;
+    filter: drop-shadow(0 0 6px rgba(255,215,0,0.8));
+  }
+
+  .lock-icon {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    font-size: 14px;
+    opacity: 0.5;
+  }
+
+  /* ЗНАЧКИ ДОСТИЖЕНИЙ */
+  .badges-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .badge-slot {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,215,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    background: rgba(255,255,255,0.04);
+    transition: all 0.3s;
+  }
+
+  .badge-slot.earned {
+    border-color: var(--gold);
+    background: rgba(255,215,0,0.15);
+    box-shadow: 0 0 16px rgba(255,215,0,0.4);
+    animation: badgePop 0.4s ease;
+  }
+
+  @keyframes badgePop {
+    0% { transform: scale(0.5); opacity: 0; }
+    70% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* СЕКЦИЯ ВЫБОРА */
+  .section-label {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--gold);
+    text-align: center;
+    margin: 12px 0 8px;
+    width: 100%;
+    max-width: 340px;
+  }
+
+  .section-divider {
+    width: 100%;
+    max-width: 340px;
+    height: 1px;
+    background: rgba(255,215,0,0.1);
+    margin: 10px 0;
+  }
+
+  /* КНОПКИ ВЫБОРА */
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    max-width: 340px;
+    margin-bottom: 4px;
+  }
+  .choices.three-col { grid-template-columns: 1fr 1fr 1fr; }
+
+  .choice-btn {
+    background: rgba(255,215,0,0.06);
+    border: 2px solid rgba(255,215,0,0.2);
+    border-radius: 14px;
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    color: #f0e6c0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 72px;
+    line-height: 1.2;
+  }
+  .choice-btn .emoji { font-size: 28px; line-height: 1; display: block; }
+  .choice-btn:active { transform: scale(0.95); }
+  .choice-btn.selected {
+    background: rgba(255,215,0,0.15);
+    border-color: var(--gold);
+    box-shadow: 0 0 14px rgba(255,215,0,0.2);
+  }
+  .choices.three-col .choice-btn { font-size: 10px; min-height: 64px; }
+  .choices.three-col .choice-btn .emoji { font-size: 22px; }
+
+  /* ИНПУТ */
+  .custom-input-wrap { width: 100%; max-width: 340px; margin: 8px 0 4px; }
+  .custom-input {
+    width: 100%;
+    background: rgba(255,215,0,0.06);
+    border: 2px solid rgba(255,215,0,0.2);
+    border-radius: 14px;
+    padding: 11px 14px;
+    color: #f0e6c0;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .custom-input:focus { border-color: var(--gold); }
+  .custom-input::placeholder { color: rgba(240,230,192,0.3); }
+
+  /* ПРОМПТ */
+  .prompt-result {
+    display: none;
+    width: 100%;
+    max-width: 340px;
+    background: rgba(40,180,99,0.1);
+    border: 2px solid #28B463;
+    border-radius: 16px;
+    padding: 12px;
+    margin: 10px 0 6px;
+    animation: fadeIn 0.3s ease;
+  }
+  .prompt-result.show { display: block; }
+  .prompt-label { font-size: 10px; color: #28B463; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .prompt-text { font-size: 12px; color: rgba(240,230,192,0.85); line-height: 1.5; margin-bottom: 8px; }
+  .copy-btn {
+    background: #28B463;
+    color: #0e0c04;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s;
+  }
+  .copy-btn.copied { background: var(--gold); color: #0e0c04; }
+
+  /* КНОПКИ ДЕЙСТВИЙ */
+  .main-btn {
+    background: linear-gradient(135deg, #B8860B, #FFD700);
+    border: none;
+    border-radius: 18px;
+    padding: 15px 20px;
+    color: #0e0c04;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 15px;
+    cursor: pointer;
+    width: 100%;
+    max-width: 340px;
+    margin-top: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 20px rgba(255,215,0,0.3);
+  }
+  .main-btn:active { transform: scale(0.97); }
+  .main-btn.secondary {
+    background: rgba(255,215,0,0.1);
+    color: var(--gold);
+    border: 2px solid rgba(255,215,0,0.3);
+    box-shadow: none;
+  }
+
+  /* МАСТЕР-ЭКРАН */
+  .master-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 12px;
+    width: 100%;
+    max-width: 340px;
+  }
+
+  .master-big-emoji {
+    font-size: 72px;
+    line-height: 1;
+    margin-bottom: 8px;
+    animation: float 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 16px currentColor);
+  }
+
+  .master-title {
+    font-size: 16px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 2px;
+  }
+
+  .master-subtitle {
+    font-size: 11px;
+    color: rgba(240,230,192,0.5);
+    text-align: center;
+    letter-spacing: 1px;
+  }
+
+  /* ДОСТИЖЕНИЕ */
+  .achievement-popup {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    animation: fadeIn 0.3s ease;
+    padding: 20px;
+  }
+
+  .achievement-badge {
+    font-size: 80px;
+    margin-bottom: 16px;
+    animation: badgeBounce 0.6s ease;
+    filter: drop-shadow(0 0 30px rgba(255,215,0,0.8));
+  }
+
+  @keyframes badgeBounce {
+    0% { transform: scale(0) rotate(-20deg); }
+    60% { transform: scale(1.3) rotate(5deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+
+  .achievement-title {
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  .achievement-name {
+    font-size: 22px;
+    font-weight: 900;
+    text-align: center;
+    color: #f0e6c0;
+    margin-bottom: 6px;
+  }
+
+  .achievement-desc {
+    font-size: 13px;
+    color: rgba(240,230,192,0.6);
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  /* ДИПЛОМ */
+  .diploma {
+    background: linear-gradient(135deg, rgba(232,160,32,0.2), rgba(142,68,173,0.15));
+    border: 2px solid var(--gold);
+    border-radius: 20px;
+    padding: 24px 20px;
+    width: 100%;
+    max-width: 340px;
+    text-align: center;
+    margin: 10px 0 16px;
+    box-shadow: 0 0 40px rgba(255,215,0,0.15), inset 0 0 40px rgba(255,215,0,0.03);
+  }
+
+  .diploma-header {
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  .diploma-title {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--gold);
+    margin-bottom: 4px;
+    text-shadow: 0 0 20px rgba(255,215,0,0.4);
+  }
+
+  .diploma-name {
+    font-size: 26px;
+    font-weight: 900;
+    margin-bottom: 16px;
+    color: #f0e6c0;
+  }
+
+  .diploma-badges {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .diploma-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .diploma-badge-emoji { font-size: 32px; filter: drop-shadow(0 0 8px rgba(255,215,0,0.6)); }
+  .diploma-badge-label { font-size: 9px; color: rgba(240,230,192,0.5); text-align: center; max-width: 60px; }
+
+  .diploma-seal {
+    font-size: 40px;
+    margin-top: 8px;
+    filter: drop-shadow(0 0 12px rgba(255,215,0,0.6));
+  }
+
+  /* ПРОГРЕСС */
+  .progress-bar-wrap {
+    width: 100%;
+    max-width: 340px;
+    height: 4px;
+    background: rgba(255,215,0,0.1);
+    border-radius: 2px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  .spacer { height: 24px; width: 100%; flex-shrink: 0; }
+
+  /* DESKTOP */
+  .desktop-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  .desktop-left { width: 100%; max-width: 340px; display: flex; flex-direction: column; align-items: center; }
+  .desktop-right { width: 100%; max-width: 340px; display: flex; flex-direction: column; align-items: center; }
+
+  /* Экраны мастеров — контейнер */
+  .master-screen-inner {
+    width: 100%;
+    max-width: 340px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .screen { padding: 40px 24px; justify-content: flex-start; }
+
+    .desktop-layout {
+      display: grid !important;
+      grid-template-columns: 260px 1fr;
+      gap: 40px;
+      width: 100%;
+      max-width: 900px;
+      align-items: start;
+    }
+    .desktop-left {
+      max-width: unset;
+      position: sticky;
+      top: 40px;
+      align-items: center;
+    }
+    .desktop-right {
+      max-width: unset;
+      align-items: flex-start;
+    }
+    .desktop-right .section-label { text-align: left; }
+    .desktop-right .scroll { text-align: left; margin-left: 0; }
+
+    /* Экраны мастеров на десктопе — двухколоночные */
+    .master-screen-inner {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 40px;
+      max-width: 900px;
+      align-items: start;
+    }
+    .master-left-col {
+      position: sticky;
+      top: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .master-right-col {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .master-right-col .section-label { text-align: left; max-width: 100%; }
+    .master-right-col .section-divider { max-width: 100%; }
+    .master-right-col .choices { max-width: 100%; }
+    .master-right-col .choices.three-col { grid-template-columns: repeat(4, 1fr); }
+    .master-right-col .custom-input-wrap { max-width: 100%; }
+    .master-right-col .prompt-result { max-width: 100%; }
+    .master-right-col .main-btn { max-width: 380px; }
+
+    .choices { max-width: 100%; }
+    .choices.three-col { grid-template-columns: repeat(4, 1fr); }
+    .custom-input-wrap { max-width: 100%; }
+    .prompt-result { max-width: 100%; }
+    .main-btn { max-width: 380px; }
+    .master-header { max-width: 100%; }
+    .crest { font-size: 90px; }
+    .academy-title { font-size: 28px; }
+    .academy-map { max-width: 500px; grid-template-columns: 1fr 1fr; }
+    .badges-row { gap: 20px; }
+    .badge-slot { width: 64px; height: 64px; font-size: 30px; }
+    .scroll { font-size: 15px; }
+    .master-big-emoji { font-size: 90px; }
+    .master-title { font-size: 20px; }
+  }
+
+  @media (min-width: 1200px) {
+    .master-screen-inner { grid-template-columns: 280px 1fr; max-width: 1050px; }
+    .desktop-layout { grid-template-columns: 280px 1fr; max-width: 1050px; }
+    .master-right-col .choices.three-col { grid-template-columns: repeat(5, 1fr); }
+  }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed;
+    animation: confettiFall linear forwards;
+    z-index: 300;
+    pointer-events: none;
+    border-radius: 2px;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- ЭКРАН 0: ДОБРО ПОЖАЛОВАТЬ -->
+<!-- ══════════════════════════════════════════ -->
+<div id="screen-welcome" class="screen active">
+  <div class="crest">🏛️</div>
+  <div class="academy-title">Академия</div>
+  <div class="academy-sub">Цифровых Мастеров</div>
+  <div class="scroll">
+    Сегодня — День открытых дверей.<br>
+    Четыре мастера ждут тебя.<br>
+    Готов пройти испытания? ⚔️
+  </div>
+  <button class="main-btn" onclick="goTo('screen-gender')" style="font-size:17px; padding:18px;">
+    🚪 ВОЙТИ В АКАДЕМИЮ
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- ЭКРАН 0.5: ПОЛ ГЕРОЯ -->
+<!-- ══════════════════════════════════════════ -->
+<div id="screen-gender" class="screen">
+  <div class="crest" style="font-size:56px; margin-top:16px;">📜</div>
+  <div class="academy-title" style="font-size:18px;">Регистрация</div>
+  <div class="academy-sub">Анкета абитуриента</div>
+  <div class="scroll">
+    Прежде чем начать — скажи:<br>
+    твой герой будет мальчиком или девочкой?
+  </div>
+  <div class="choices" style="max-width:280px; margin-top:8px;">
+    <button class="choice-btn" onclick="selectGender('m')" id="gender-m" style="min-height:90px;">
+      <span class="emoji">🦸‍♂️</span>Мальчик
+    </button>
+    <button class="choice-btn" onclick="selectGender('f')" id="gender-f" style="min-height:90px;">
+      <span class="emoji">🦸‍♀️</span>Девочка
+    </button>
+  </div>
+  <button class="main-btn" onclick="goTo('screen-map')" style="margin-top:20px;">
+    ➡️ Далее
+  </button>
+  <div class="spacer"></div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- ЭКРАН 1: КАРТА АКАДЕМИИ -->
+<!-- ══════════════════════════════════════════ -->
+<div id="screen-map" class="screen">
+  <div class="crest" style="font-size:50px; margin-top:12px;">🏛️</div>
+  <div class="academy-title" style="font-size:16px;">Карта Академии</div>
+  <div class="academy-sub" style="margin-bottom:12px;">Выбери мастера</div>
+
+  <div class="badges-row">
+    <div class="badge-slot" id="badge-slot-1">🎨</div>
+    <div class="badge-slot" id="badge-slot-2">🌍</div>
+    <div class="badge-slot" id="badge-slot-3">⚡</div>
+    <div class="badge-slot" id="badge-slot-4">🎵</div>
+  </div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+  </div>
+
+  <div class="academy-map">
+    <div class="master-card" id="card-1" onclick="enterMaster(1)">
+      <span class="master-emoji">🎨</span>
+      <div class="master-name">Маэстро Пиксель</div>
+      <div class="master-skill">Создание героя</div>
+      <span class="lock-icon" id="lock-1"></span>
+    </div>
+    <div class="master-card locked" id="card-2" onclick="enterMaster(2)">
+      <span class="master-emoji">🗺️</span>
+      <div class="master-name">Картограф Орион</div>
+      <div class="master-skill">Создание мира</div>
+      <span class="lock-icon" id="lock-2">🔒</span>
+    </div>
+    <div class="master-card locked" id="card-3" onclick="enterMaster(3)">
+      <span class="master-emoji">⚡</span>
+      <div class="master-name">Механик Спарк</div>
+      <div class="master-skill">Оживление героя</div>
+      <span class="lock-icon" id="lock-3">🔒</span>
+    </div>
+    <div class="master-card locked" id="card-4" onclick="enterMaster(4)">
+      <span class="master-emoji">🎵</span>
+      <div class="master-name">Диджей Нова</div>
+      <div class="master-skill">Создание песни</div>
+      <span class="lock-icon" id="lock-4">🔒</span>
+    </div>
+  </div>
+
+  <div class="scroll" style="margin-top:8px; font-size:13px;" id="map-hint">
+    Начни с Маэстро Пикселя — он первым встречает всех новичков
+  </div>
+  <div class="spacer"></div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- ЭКРАН 2: МАЭСТРО ПИКСЕЛЬ — ГЕРОЙ -->
+<!-- ══════════════════════════════════════════ -->
+<div id="screen-master1" class="screen">
+  <div class="master-screen-inner">
+    <div class="master-left-col">
+      <div class="master-header">
+        <div class="master-big-emoji" style="color: var(--master1);">🎨</div>
+        <div class="master-title" style="color: var(--master1);">Маэстро Пиксель</div>
+        <div class="master-subtitle">Испытание первое · Создание героя</div>
+      </div>
+      <div class="scroll" style="font-size:13px;">
+        «Каждый великий мастер начинает с создания своего героя. Покажи мне кто живёт в твоём воображении!»
+      </div>
+    </div>
+    <div class="master-right-col">
+
+      <div class="section-label">🐾 Животные</div>
+      <div class="choices three-col" id="a-who-animal">
+        <button class="choice-btn" onclick="sel(this,'who','кошка','🐱')"><span class="emoji">🐱</span>Кошка</button>
+        <button class="choice-btn" onclick="sel(this,'who','собака','🐶')"><span class="emoji">🐶</span>Собака</button>
+        <button class="choice-btn" onclick="sel(this,'who','хомяк','🐹')"><span class="emoji">🐹</span>Хомяк</button>
+        <button class="choice-btn" onclick="sel(this,'who','дракон','🐉')"><span class="emoji">🐉</span>Дракон</button>
+        <button class="choice-btn" onclick="sel(this,'who','лиса','🦊')"><span class="emoji">🦊</span>Лиса</button>
+        <button class="choice-btn" onclick="sel(this,'who','панда','🐼')"><span class="emoji">🐼</span>Панда</button>
+      </div>
+
+      <div class="section-label" style="margin-top:6px;">🦸 Герои</div>
+      <div class="choices three-col" id="a-who-hero">
+        <button class="choice-btn" onclick="sel(this,'who','робот','🤖')"><span class="emoji">🤖</span>Робот</button>
+        <button class="choice-btn" onclick="sel(this,'who','супергерой','🦸')"><span class="emoji">🦸</span>Супергерой</button>
+        <button class="choice-btn" onclick="sel(this,'who','волшебник','🧙')"><span class="emoji">🧙</span>Волшебник</button>
+        <button class="choice-btn" onclick="sel(this,'who','рыцарь','⚔️')"><span class="emoji">⚔️</span>Рыцарь</button>
+        <button class="choice-btn" onclick="sel(this,'who','пришелец','👽')"><span class="emoji">👽</span>Пришелец</button>
+        <button class="choice-btn" onclick="sel(this,'who','ниндзя','🥷')"><span class="emoji">🥷</span>Ниндзя</button>
+      </div>
+
+      <div class="custom-input-wrap">
+        <input class="custom-input" placeholder="Или придумай своего..." oninput="customSel('who',this.value)">
+      </div>
+
+      <div class="section-divider"></div>
+      <div class="section-label">💫 Характер</div>
+      <div class="choices" id="a-trait">
+        <button class="choice-btn" onclick="sel(this,'trait','смелый','💪')"><span class="emoji">💪</span>Смелый</button>
+        <button class="choice-btn" onclick="sel(this,'trait','добрый','💚')"><span class="emoji">💚</span>Добрый</button>
+        <button class="choice-btn" onclick="sel(this,'trait','умный','🧠')"><span class="emoji">🧠</span>Умный</button>
+        <button class="choice-btn" onclick="sel(this,'trait','весёлый','😄')"><span class="emoji">😄</span>Весёлый</button>
+        <button class="choice-btn" onclick="sel(this,'trait','загадочный','🌙')"><span class="emoji">🌙</span>Загадочный</button>
+        <button class="choice-btn" onclick="sel(this,'trait','хитрый','😏')"><span class="emoji">😏</span>Хитрый</button>
+      </div>
+
+      <div class="section-divider"></div>
+      <div class="section-label">🎨 Цвет героя / костюма</div>
+      <div class="choices three-col" id="a-color">
+        <button class="choice-btn" onclick="sel(this,'color','синий','💙')"><span class="emoji">💙</span>Синий</button>
+        <button class="choice-btn" onclick="sel(this,'color','красный','❤️')"><span class="emoji">❤️</span>Красный</button>
+        <button class="choice-btn" onclick="sel(this,'color','зелёный','💚')"><span class="emoji">💚</span>Зелёный</button>
+        <button class="choice-btn" onclick="sel(this,'color','фиолетовый','💜')"><span class="emoji">💜</span>Фиолет.</button>
+        <button class="choice-btn" onclick="sel(this,'color','золотой','💛')"><span class="emoji">💛</span>Золотой</button>
+        <button class="choice-btn" onclick="sel(this,'color','оранжевый','🧡')"><span class="emoji">🧡</span>Оранжев.</button>
+        <button class="choice-btn" onclick="sel(this,'color','чёрный','🖤')"><span class="emoji">🖤</span>Чёрный</button>
+        <button class="choice-btn" onclick="sel(this,'color','белый','🤍')"><span class="emoji">🤍</span>Белый</button>
+        <button class="choice-btn" onclick="sel(this,'color','радужный','🌈')"><span class="emoji">🌈</span>Радужный</button>
+      </div>
+
+      <div class="section-divider"></div>
+      <div class="section-label">⚔️ Снаряжение</div>
+      <div class="choices three-col" id="a-gear">
+        <button class="choice-btn" onclick="sel(this,'gear','меч','⚔️')"><span class="emoji">⚔️</span>Меч</button>
+        <button class="choice-btn" onclick="sel(this,'gear','крылья','🪶')"><span class="emoji">🪶</span>Крылья</button>
+        <button class="choice-btn" onclick="sel(this,'gear','плащ','🦸')"><span class="emoji">🦸</span>Плащ</button>
+        <button class="choice-btn" onclick="sel(this,'gear','рюкзак','🎒')"><span class="emoji">🎒</span>Рюкзак</button>
+        <button class="choice-btn" onclick="sel(this,'gear','шляпа','🎩')"><span class="emoji">🎩</span>Шляпа</button>
+        <button class="choice-btn" onclick="sel(this,'gear','лазер','🔫')"><span class="emoji">🔫</span>Лазер</button>
+      </div>
+
+      <div class="custom-input-wrap" style="margin-top:10px;">
+        <input class="custom-input" id="input-name" placeholder="Имя героя..." oninput="d.name=this.value">
+      </div>
+      <div class="custom-input-wrap">
+        <input class="custom-input" id="input-extra1" placeholder="Добавь что-то своё...">
+      </div>
+
+      <div id="prompt-1" class="prompt-result">
+        <div class="prompt-label">📋 Промпт готов — скопируй и вставь в чат!</div>
+        <div class="prompt-text" id="prompt-1-text"></div>
+        <button class="copy-btn" id="copy-1-btn" onclick="copyP(1)">📋 Скопировать</button>
+      </div>
+
+      <button class="main-btn" onclick="buildPrompt1()">✨ Передать Маэстро Пикселю!</button>
+      <button class="main-btn secondary" onclick="completeMaster(1)" style="margin-top:6px;">
+        🏅 Испытание пройдено!
+      </button>
+    </div><!-- end master-right-col -->
+  </div><!-- end master-screen-inner -->
+  <div class="spacer"></div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- ЭКРАН 3: КАРТОГРАФ ОРИОН — МИР -->
+<!-- ══════════════════════════════════════════ -->
+<div id="screen-master2" class="screen">
+  <div class="master-screen-inner">
+    <div class="master-left-col">
+      <div class="master-header">
+        <div class="master-big-emoji" style="color: var(--master2);">🗺️</div>
+        <div class="master-title" style="color: var(--master2);">Картограф Орион</div>
+        <div class="master-subtitle">Испытание второе · Создание мира</div>
+      </div>
+      <div class="scroll" style="font-size:13px;">
+        «Каждый герой должен иметь свой мир. Где будет жить твой герой? Я нанесу это на карту!»
+      </div>
+    </div>
+    <div class="master-right-col">
+
+    <div class="section-label">🌍 Мир</div>
+    <div class="choices three-col" id="b-world">
+      <button class="choice-btn" onclick="sel(this,'world','волшебный лес','🌲')"><span class="emoji">🌲</span>Лес</button>
+      <button class="choice-btn" onclick="sel(this,'world','космос','🌌')"><span class="emoji">🌌</span>Космос</button>
+      <button class="choice-btn" onclick="sel(this,'world','город будущего','🏙️')"><span class="emoji">🏙️</span>Будущее</button>
+      <button class="choice-btn" onclick="sel(this,'world','замок','🏰')"><span class="emoji">🏰</span>Замок</button>
+      <button class="choice-btn" onclick="sel(this,'world','подводный мир','🌊')"><span class="emoji">🌊</span>Океан</button>
+      <button class="choice-btn" onclick="sel(this,'world','джунгли','🌴')"><span class="emoji">🌴</span>Джунгли</button>
+      <button class="choice-btn" onclick="sel(this,'world','горы','🏔️')"><span class="emoji">🏔️</span>Горы</button>
+      <button class="choice-btn" onclick="sel(this,'world','вулкан','🌋')"><span class="emoji">🌋</span>Вулкан</button>
+      <button class="choice-btn" onclick="sel(this,'world','пиксельный мир','👾')"><span class="emoji">👾</span>Пиксели</button>
+    </div>
+
+    <div class="custom-input-wrap">
+      <input class="custom-input" placeholder="Или придумай свой мир..." oninput="customSel('world',this.value)">
+    </div>
+
+    <div class="section-divider"></div>
+    <div class="section-label">🌈 Настроение</div>
+    <div class="choices" id="b-mood">
+      <button class="choice-btn" onclick="sel(this,'mood','доброе','☀️')"><span class="emoji">☀️</span>Доброе</button>
+      <button class="choice-btn" onclick="sel(this,'mood','загадочное','🌙')"><span class="emoji">🌙</span>Загадочное</button>
+      <button class="choice-btn" onclick="sel(this,'mood','приключенческое','⚡')"><span class="emoji">⚡</span>Приключение</button>
+      <button class="choice-btn" onclick="sel(this,'mood','волшебное','✨')"><span class="emoji">✨</span>Волшебное</button>
+    </div>
+
+    <div class="section-divider"></div>
+    <div class="section-label">🏃 Что делает герой?</div>
+    <div class="choices" id="b-action">
+      <button class="choice-btn" onclick="sel(this,'action','идёт навстречу приключению','🚶')"><span class="emoji">🚶</span>Идёт</button>
+      <button class="choice-btn" onclick="sel(this,'action','летит','🦅')"><span class="emoji">🦅</span>Летит</button>
+      <button class="choice-btn" onclick="sel(this,'action','ищет сокровище','🔍')"><span class="emoji">🔍</span>Ищет клад</button>
+      <button class="choice-btn" onclick="sel(this,'action','спасает друга','🤝')"><span class="emoji">🤝</span>Спасает друга</button>
+    </div>
+
+    <div class="custom-input-wrap">
+      <input class="custom-input" id="input-extra2" placeholder="Добавь деталь...">
+    </div>
+
+    <div id="prompt-2" class="prompt-result">
+      <div class="prompt-label">📋 Промпт готов — скопируй и вставь в чат!</div>
+      <div class="prompt-text" id="prompt-2-text"></div>
+      <button class="copy-btn" id="copy-2-btn" onclick="copyP(2)">📋 Скопировать</button>
+    </div>
+
+    <button class="main-btn" onclick="buildPrompt2()">🗺️ Нанести на карту!</button>
+    <button class="main-btn secondary" onclick="completeMaster(2)" style="margin-top:6px;">
+      🏅 Испытание пройдено!
+    </button>
+    </div><!-- end master-right-col -->
+  </div><!-- end master-screen-inner -->
+  <div class="spacer"></div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- ЭКРАН 4: МЕХАНИК СПАРК — АНИМАЦИЯ -->
+<!-- ══════════════════════════════════════════ -->
+<div id="screen-master3" class="screen">
+  <div class="master-screen-inner">
+    <div class="master-left-col">
+      <div class="master-header">
+        <div class="master-big-emoji" style="color: var(--master3);">⚡</div>
+        <div class="master-title" style="color: var(--master3);">Механик Спарк</div>
+        <div class="master-subtitle">Испытание третье · Оживление героя</div>
+      </div>
+      <div class="scroll" style="font-size:13px;">
+        «Картинка — это хорошо. Но живой герой — это настоящее искусство! Какое движение оживит твоего героя?»
+      </div>
+    </div>
+    <div class="master-right-col">
+      <div class="scroll" style="background: rgba(40,180,99,0.1); border-color: rgba(40,180,99,0.3); font-size:13px;">
+        💡 Это задание МВУ выполняет голосом — скажи вслух что должен делать герой
+      </div>
+      <button class="main-btn secondary" onclick="completeMaster(3)" style="margin-top:16px;">
+        🏅 Испытание пройдено!
+      </button>
+    </div><!-- end master-right-col -->
+  </div><!-- end master-screen-inner -->
+  <div class="spacer"></div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- ЭКРАН 5: ДИДЖЕЙ НОВА — ПЕСНЯ -->
+<!-- ══════════════════════════════════════════ -->
+<div id="screen-master4" class="screen">
+  <div class="master-screen-inner">
+    <div class="master-left-col">
+      <div class="master-header">
+        <div class="master-big-emoji" style="color: var(--master4);">🎵</div>
+        <div class="master-title" style="color: var(--master4);">Диджей Нова</div>
+        <div class="master-subtitle">Испытание четвёртое · Создание песни</div>
+      </div>
+      <div class="scroll" style="font-size:13px;">
+        «Музыка — это душа каждого мира. Какой будет песня твоего героя?»
+      </div>
+    </div>
+    <div class="master-right-col">
+
+    <div class="section-label">🎭 Настроение песни</div>
+    <div class="choices" id="c-songMood">
+      <button class="choice-btn" onclick="sel(this,'songMood','весёлая','😄')"><span class="emoji">😄</span>Весёлая</button>
+      <button class="choice-btn" onclick="sel(this,'songMood','волшебная','✨')"><span class="emoji">✨</span>Волшебная</button>
+      <button class="choice-btn" onclick="sel(this,'songMood','приключенческая','⚡')"><span class="emoji">⚡</span>Приключение</button>
+      <button class="choice-btn" onclick="sel(this,'songMood','смешная','😂')"><span class="emoji">😂</span>Смешная</button>
+    </div>
+
+    <div class="section-divider"></div>
+    <div class="section-label">🥁 Ритм</div>
+    <div class="choices" id="c-rhythm">
+      <button class="choice-btn" onclick="sel(this,'rhythm','быстрый','🏃')"><span class="emoji">🏃</span>Быстрый</button>
+      <button class="choice-btn" onclick="sel(this,'rhythm','спокойный','🌊')"><span class="emoji">🌊</span>Спокойный</button>
+    </div>
+
+    <div class="section-divider"></div>
+    <div class="section-label">🎤 Фраза для припева</div>
+    <div class="choices" id="c-chorus">
+      <button class="choice-btn" onclick="sel(this,'chorus','Вперёд, герой, лети!','🚀')"><span class="emoji">🚀</span>«Вперёд, лети!»</button>
+      <button class="choice-btn" onclick="sel(this,'chorus','Мир спасён, ура!','🎉')"><span class="emoji">🎉</span>«Мир спасён!»</button>
+    </div>
+    <div class="custom-input-wrap">
+      <input class="custom-input" id="input-chorus" placeholder="Придумай свою фразу..." oninput="d.chorus=this.value; clearG('c-chorus')">
+    </div>
+
+    <div id="prompt-4" class="prompt-result">
+      <div class="prompt-label">📋 Промпт готов — скопируй и вставь в чат!</div>
+      <div class="prompt-text" id="prompt-4-text"></div>
+      <button class="copy-btn" id="copy-4-btn" onclick="copyP(4)">📋 Скопировать</button>
+    </div>
+
+    <button class="main-btn" onclick="buildPrompt4()">🎵 Создать песню!</button>
+    <button class="main-btn secondary" onclick="completeMaster(4)" style="margin-top:6px;">
+      🏅 Испытание пройдено!
+    </button>
+    </div><!-- end master-right-col -->
+  </div><!-- end master-screen-inner -->
+  <div class="spacer"></div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- ЭКРАН 6: ДИПЛОМ -->
+<!-- ══════════════════════════════════════════ -->
+<div id="screen-diploma" class="screen">
+  <div class="crest" style="font-size:80px; margin-top:20px;">🏛️</div>
+  <div class="academy-title">Поздравляем!</div>
+  <div class="academy-sub" style="margin-bottom:16px;">Мастер цифрового мира</div>
+
+  <div class="diploma">
+    <div class="diploma-header">Академия Цифровых Мастеров</div>
+    <div class="diploma-title">ДИПЛОМ МАСТЕРА</div>
+    <div class="diploma-name" id="diploma-name">—</div>
+
+    <div class="diploma-badges">
+      <div class="diploma-badge">
+        <div class="diploma-badge-emoji">🎨</div>
+        <div class="diploma-badge-label">Мастер героев</div>
+      </div>
+      <div class="diploma-badge">
+        <div class="diploma-badge-emoji">🗺️</div>
+        <div class="diploma-badge-label">Мастер миров</div>
+      </div>
+      <div class="diploma-badge">
+        <div class="diploma-badge-emoji">⚡</div>
+        <div class="diploma-badge-label">Мастер анимации</div>
+      </div>
+      <div class="diploma-badge">
+        <div class="diploma-badge-emoji">🎵</div>
+        <div class="diploma-badge-label">Мастер музыки</div>
+      </div>
+    </div>
+
+    <div style="font-size:12px; color:rgba(240,230,192,0.5); margin-bottom:8px;">Герой</div>
+    <div style="font-size:14px; font-weight:700; margin-bottom:12px;" id="diploma-hero">—</div>
+    <div style="font-size:12px; color:rgba(240,230,192,0.5); margin-bottom:4px;">Мир</div>
+    <div style="font-size:14px; font-weight:700;" id="diploma-world">—</div>
+
+    <div class="diploma-seal">🏅</div>
+  </div>
+
+  <button class="main-btn" onclick="celebrate()" style="font-size:16px;">
+    🎊 Получить диплом!
+  </button>
+  <div class="spacer"></div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- POPUP: ДОСТИЖЕНИЕ -->
+<!-- ══════════════════════════════════════════ -->
+<div id="achievement-popup" class="achievement-popup" style="display:none;" onclick="closeAchievement()">
+  <div class="achievement-badge" id="ach-badge">🏅</div>
+  <div class="achievement-title">Значок получен!</div>
+  <div class="achievement-name" id="ach-name">—</div>
+  <div class="achievement-desc" id="ach-desc">—</div>
+  <button class="main-btn" style="max-width:280px;">Продолжить →</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════
+const d = {
+  gender: 'm',
+  who: '', whoEmoji: '',
+  trait: '', traitEmoji: '',
+  color: '', colorEmoji: '',
+  gear: '', gearEmoji: '',
+  name: '',
+  world: '', worldEmoji: '',
+  mood: '', moodEmoji: '',
+  action: '', actionEmoji: '',
+  songMood: '', rhythm: '', chorus: '',
+  completed: [false, false, false, false]
+};
+
+const MASTERS = [
+  { id: 1, emoji: '🎨', name: 'Мастер героев',    desc: 'Ты создал своего первого цифрового героя!',    screen: 'screen-master1', color: '#E8A020' },
+  { id: 2, emoji: '🗺️', name: 'Мастер миров',     desc: 'Ты построил целый мир для своего героя!',      screen: 'screen-master2', color: '#2E86C1' },
+  { id: 3, emoji: '⚡', name: 'Мастер анимации',  desc: 'Ты оживил своего героя — он теперь двигается!', screen: 'screen-master3', color: '#28B463' },
+  { id: 4, emoji: '🎵', name: 'Мастер музыки',    desc: 'Ты создал песню для своего героя!',             screen: 'screen-master4', color: '#8E44AD' },
+];
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+  if (id === 'screen-diploma') fillDiploma();
+  if (id === 'screen-map') updateMapHint();
+}
+
+function updateMapHint() {
+  const done = d.completed.filter(Boolean).length;
+  const hints = [
+    'Начни с Маэстро Пикселя — он первым встречает всех новичков',
+    'Отлично! Теперь иди к Картографу Ориону — он нанесёт твой мир на карту!',
+    'Два испытания позади! Механик Спарк ждёт тебя — он оживит твоего героя!',
+    'Три значка! Осталось одно испытание — Диджей Нова создаст песню твоего героя!',
+    'Все испытания пройдены! Твой диплом готов! 🏆',
+  ];
+  const el = document.getElementById('map-hint');
+  if (el) el.textContent = hints[done] || hints[0];
+}
+
+function enterMaster(n) {
+  const card = document.getElementById('card-' + n);
+  if (card.classList.contains('locked')) return;
+  goTo(MASTERS[n-1].screen);
+}
+
+// ═══════════════════════════════════════
+// GENDER
+// ═══════════════════════════════════════
+function selectGender(g) {
+  d.gender = g;
+  document.getElementById('gender-m').classList.toggle('selected', g === 'm');
+  document.getElementById('gender-f').classList.toggle('selected', g === 'f');
+}
+
+// ═══════════════════════════════════════
+// SELECTION
+// ═══════════════════════════════════════
+function sel(btn, key, value, emoji) {
+  btn.closest('.choices').querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+  // also clear sibling groups for 'who'
+  if (key === 'who') {
+    document.querySelectorAll('#a-who-animal .choice-btn, #a-who-hero .choice-btn').forEach(b => b.classList.remove('selected'));
+  }
+  btn.classList.add('selected');
+  d[key] = value;
+  d[key + 'Emoji'] = emoji || '';
+}
+
+function customSel(key, value) {
+  d[key] = value;
+  if (key === 'who') {
+    document.querySelectorAll('#a-who-animal .choice-btn, #a-who-hero .choice-btn').forEach(b => b.classList.remove('selected'));
+  }
+}
+
+function clearG(groupId) {
+  const g = document.getElementById(groupId);
+  if (g) g.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+}
+
+// ═══════════════════════════════════════
+// GENDER HELPERS
+// ═══════════════════════════════════════
+function adaptTrait(t) {
+  if (d.gender !== 'f') return t;
+  return {'смелый':'смелая','добрый':'добрая','умный':'умная','весёлый':'весёлая','загадочный':'загадочная','хитрый':'хитрая'}[t] || t;
+}
+function adaptColor(c) {
+  if (d.gender !== 'f') return c;
+  return {'синий':'синяя','красный':'красная','зелёный':'зелёная','фиолетовый':'фиолетовая','золотой':'золотая','оранжевый':'оранжевая','чёрный':'чёрная','белый':'белая','радужный':'радужная'}[c] || c;
+}
+function he() { return d.gender === 'f' ? 'Она' : 'Он'; }
+function his() { return d.gender === 'f' ? 'у неё' : 'у него'; }
+function kto() { return d.gender === 'f' ? 'которая' : 'который'; }
+
+// ═══════════════════════════════════════
+// PROMPT BUILDERS
+// ═══════════════════════════════════════
+function buildPrompt1() {
+  const who = d.who || 'герой';
+  const trait = adaptTrait(d.trait || 'смелый');
+  const color = adaptColor(d.color || 'яркий');
+  const gear = d.gear || '';
+  const name = d.name || document.getElementById('input-name').value || 'Герой';
+  const extra = document.getElementById('input-extra1').value || '';
+  d.name = name;
+
+  let p = `Создай мультяшного персонажа на белом фоне. Это ${who} по имени ${name}. ${he()} ${trait}, ${color} цвета.`;
+  if (gear) p += ` ${his().charAt(0).toUpperCase() + his().slice(1)} есть ${gear}.`;
+  if (extra) p += ` ${extra}.`;
+  p += ` Стиль — яркая детская иллюстрация, мультяшный и милый.`;
+  showPrompt(1, p);
+}
+
+function buildPrompt2() {
+  const who = d.who || 'герой';
+  const name = d.name || 'Герой';
+  const color = adaptColor(d.color || '');
+  const gear = d.gear || '';
+  const world = d.world || 'волшебный мир';
+  const mood = d.mood || 'волшебное';
+  const action = d.action || 'стоит';
+  const extra = document.getElementById('input-extra2').value || '';
+
+  let p = `Создай картинку с персонажем по имени ${name}. Это ${color ? color + ' ' : ''}${who}`;
+  if (gear) p += ` с ${gear}`;
+  p += `. ${he()} находится в ${world}. Персонаж ${action}. Настроение картинки ${mood}.`;
+  if (extra) p += ` ${extra}.`;
+  p += ` Стиль — яркая детская иллюстрация, мультяшный.`;
+  showPrompt(2, p);
+}
+
+function buildPrompt4() {
+  const name = d.name || 'Герой';
+  const who = d.who || 'герой';
+  const trait = adaptTrait(d.trait || 'смелый');
+  const world = d.world || 'волшебный мир';
+  const mood = d.songMood || 'весёлая';
+  const rhythm = d.rhythm || 'быстрый';
+  const chorus = d.chorus || document.getElementById('input-chorus').value || 'Вперёд, герой, лети!';
+
+  const p = `Напиши детскую ${mood} песню про ${who} по имени ${name}, ${kto()} живёт в ${world}. Главная черта — ${trait}. Ритм ${rhythm}. Припев: «${chorus}». Стиль — детский, ${mood}.`;
+  showPrompt(4, p);
+}
+
+function showPrompt(n, text) {
+  document.getElementById('prompt-' + n + '-text').textContent = text;
+  document.getElementById('prompt-' + n).classList.add('show');
+  const btn = document.getElementById('copy-' + n + '-btn');
+  if (btn) { btn.textContent = '📋 Скопировать'; btn.classList.remove('copied'); }
+}
+
+function copyP(n) {
+  const text = document.getElementById('prompt-' + n + '-text').textContent;
+  const btn = document.getElementById('copy-' + n + '-btn');
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✅ Скопировано!';
+    btn.classList.add('copied');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '✅ Скопировано!';
+    btn.classList.add('copied');
+  });
+}
+
+// ═══════════════════════════════════════
+// ACHIEVEMENTS
+// ═══════════════════════════════════════
+function completeMaster(n) {
+  d.completed[n-1] = true;
+  const m = MASTERS[n-1];
+
+  // Показываем попап достижения
+  document.getElementById('ach-badge').textContent = m.emoji;
+  document.getElementById('ach-name').textContent = m.name;
+  document.getElementById('ach-desc').textContent = m.desc;
+  document.getElementById('achievement-popup').style.display = 'flex';
+
+  // Обновляем значки
+  const slot = document.getElementById('badge-slot-' + n);
+  slot.textContent = m.emoji;
+  slot.classList.add('earned');
+
+  // Обновляем карту
+  const card = document.getElementById('card-' + n);
+  card.classList.add('completed');
+  const lock = document.getElementById('lock-' + n);
+  if (lock) lock.textContent = '✅';
+  const badge = document.createElement('span');
+  badge.className = 'badge-overlay';
+  badge.textContent = '✅';
+  card.appendChild(badge);
+
+  // Разблокируем следующего мастера
+  if (n < 4) {
+    const nextCard = document.getElementById('card-' + (n+1));
+    nextCard.classList.remove('locked');
+    const nextLock = document.getElementById('lock-' + (n+1));
+    if (nextLock) nextLock.textContent = '';
+  }
+
+  // Обновляем прогресс
+  const done = d.completed.filter(Boolean).length;
+  document.getElementById('progress-bar').style.width = (done * 25) + '%';
+
+  confetti();
+}
+
+function closeAchievement() {
+  document.getElementById('achievement-popup').style.display = 'none';
+  const done = d.completed.filter(Boolean).length;
+  if (done === 4) {
+    goTo('screen-diploma');
+  } else {
+    goTo('screen-map');
+  }
+}
+
+// ═══════════════════════════════════════
+// DIPLOMA
+// ═══════════════════════════════════════
+function fillDiploma() {
+  const name = d.name || 'Герой';
+  document.getElementById('diploma-name').textContent = name + ' ' + (d.whoEmoji || '⭐');
+  document.getElementById('diploma-hero').textContent = (d.whoEmoji||'') + ' ' + (d.who||'—') + ' · ' + (d.traitEmoji||'') + ' ' + adaptTrait(d.trait||'');
+  document.getElementById('diploma-world').textContent = (d.worldEmoji||'') + ' ' + (d.world||'—');
+}
+
+// ═══════════════════════════════════════
+// CONFETTI
+// ═══════════════════════════════════════
+function confetti() {
+  const colors = ['#FFD700','#FF6B9D','#9B4DD4','#28B463','#2E86C1','#FF8C00'];
+  for (let i = 0; i < 50; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.cssText = `left:${Math.random()*100}vw;width:${Math.random()*8+5}px;height:${Math.random()*8+5}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${Math.random()*2+2}s;animation-delay:${Math.random()*0.3}s;`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 3500);
+    }, i * 20);
+  }
+}
+
+function celebrate() { confetti(); confetti(); }
+</script>
+</body>
+</html>
