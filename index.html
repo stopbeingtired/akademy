@@ -520,13 +520,46 @@
   .desktop-left { width: 100%; max-width: 340px; display: flex; flex-direction: column; align-items: center; }
   .desktop-right { width: 100%; max-width: 340px; display: flex; flex-direction: column; align-items: center; }
 
-  /* Экраны мастеров — контейнер */
+  /* Экраны мастеров — мобильный: вертикально */
   .master-screen-inner {
     width: 100%;
     max-width: 340px;
     display: flex;
     flex-direction: column;
     align-items: center;
+  }
+  .master-left-col {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .master-right-col {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  /* На мобиле choices растягиваются на полную ширину */
+  .master-right-col .choices,
+  .master-right-col .custom-input-wrap,
+  .master-right-col .prompt-result,
+  .master-right-col .section-divider,
+  .master-right-col .section-label {
+    max-width: 340px;
+    width: 100%;
+  }
+  .master-right-col .main-btn { max-width: 340px; }
+
+  /* Экран пола — всегда 2 колонки */
+  .gender-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    max-width: 300px;
+    margin-top: 16px;
   }
 
   @media (min-width: 768px) {
@@ -559,6 +592,7 @@
       grid-template-columns: 240px 1fr;
       gap: 40px;
       max-width: 900px;
+      width: 100%;
       align-items: start;
     }
     .master-left-col {
@@ -647,7 +681,7 @@
     Прежде чем начать — скажи:<br>
     твой герой будет мальчиком или девочкой?
   </div>
-  <div class="choices" style="max-width:280px; margin-top:8px;">
+  <div class="gender-grid">
     <button class="choice-btn" onclick="selectGender('m')" id="gender-m" style="min-height:90px;">
       <span class="emoji">🦸‍♂️</span>Мальчик
     </button>
@@ -797,6 +831,15 @@
         <input class="custom-input" id="input-extra1" placeholder="Добавь что-то своё...">
       </div>
 
+      <div class="section-divider"></div>
+      <div class="section-label">🖌️ Стиль картинки</div>
+      <div class="choices" id="a-style">
+        <button class="choice-btn" onclick="sel(this,'styleAvatar','яркая детская иллюстрация','🎨')"><span class="emoji">🎨</span>Иллюстрация</button>
+        <button class="choice-btn" onclick="sel(this,'styleAvatar','мультяшный 3D','🧊')"><span class="emoji">🧊</span>3D</button>
+        <button class="choice-btn" onclick="sel(this,'styleAvatar','сказочный акварельный','🌸')"><span class="emoji">🌸</span>Акварель</button>
+        <button class="choice-btn" onclick="sel(this,'styleAvatar','пиксельный арт','👾')"><span class="emoji">👾</span>Пиксели</button>
+      </div>
+
       <div id="prompt-1" class="prompt-result">
         <div class="prompt-label">📋 Промпт готов — скопируй и вставь в чат!</div>
         <div class="prompt-text" id="prompt-1-text"></div>
@@ -868,6 +911,15 @@
       <input class="custom-input" id="input-extra2" placeholder="Добавь деталь...">
     </div>
 
+    <div class="section-divider"></div>
+    <div class="section-label">🖌️ Стиль картинки</div>
+    <div class="choices" id="b-style">
+      <button class="choice-btn" onclick="sel(this,'styleWorld','яркая детская иллюстрация','🎨')"><span class="emoji">🎨</span>Иллюстрация</button>
+      <button class="choice-btn" onclick="sel(this,'styleWorld','мультяшный 3D','🧊')"><span class="emoji">🧊</span>3D</button>
+      <button class="choice-btn" onclick="sel(this,'styleWorld','сказочный акварельный','🌸')"><span class="emoji">🌸</span>Акварель</button>
+      <button class="choice-btn" onclick="sel(this,'styleWorld','пиксельный арт','👾')"><span class="emoji">👾</span>Пиксели</button>
+    </div>
+
     <div id="prompt-2" class="prompt-result">
       <div class="prompt-label">📋 Промпт готов — скопируй и вставь в чат!</div>
       <div class="prompt-text" id="prompt-2-text"></div>
@@ -900,9 +952,34 @@
     </div>
     <div class="master-right-col">
       <div class="scroll" style="background: rgba(40,180,99,0.1); border-color: rgba(40,180,99,0.3); font-size:13px;">
-        💡 Это задание МВУ выполняет голосом — скажи вслух что должен делать герой
+        💡 МВУ задаёт вопросы голосом — выбери движение и нажми «Оживить!»
       </div>
-      <button class="main-btn secondary" onclick="completeMaster(3)" style="margin-top:16px;">
+
+      <div class="section-label">🏃 Движение</div>
+      <div class="choices" id="c-anim">
+        <button class="choice-btn" onclick="sel(this,'anim','машет рукой','👋')"><span class="emoji">👋</span>Машет рукой</button>
+        <button class="choice-btn" onclick="sel(this,'anim','подпрыгивает','⬆️')"><span class="emoji">⬆️</span>Подпрыгивает</button>
+        <button class="choice-btn" onclick="sel(this,'anim','улыбается','😄')"><span class="emoji">😄</span>Улыбается</button>
+        <button class="choice-btn" onclick="sel(this,'anim','идёт вперёд','🚶')"><span class="emoji">🚶</span>Идёт вперёд</button>
+      </div>
+
+      <div class="section-divider"></div>
+      <div class="section-label">✨ Как двигается</div>
+      <div class="choices" id="c-animStyle">
+        <button class="choice-btn" onclick="sel(this,'animStyle','весело','😄')"><span class="emoji">😄</span>Весело</button>
+        <button class="choice-btn" onclick="sel(this,'animStyle','плавно','🌊')"><span class="emoji">🌊</span>Плавно</button>
+        <button class="choice-btn" onclick="sel(this,'animStyle','смело','💪')"><span class="emoji">💪</span>Смело</button>
+        <button class="choice-btn" onclick="sel(this,'animStyle','легко','🪶')"><span class="emoji">🪶</span>Легко</button>
+      </div>
+
+      <div id="prompt-3" class="prompt-result">
+        <div class="prompt-label">📋 Промпт готов — скопируй и вставь в чат!</div>
+        <div class="prompt-text" id="prompt-3-text"></div>
+        <button class="copy-btn" id="copy-3-btn" onclick="copyP(3)">📋 Скопировать</button>
+      </div>
+
+      <button class="main-btn" onclick="buildPrompt3()" style="margin-top:8px;">⚡ Оживить героя!</button>
+      <button class="main-btn secondary" onclick="completeMaster(3)" style="margin-top:6px;">
         🏅 Испытание пройдено!
       </button>
     </div><!-- end master-right-col -->
@@ -1038,6 +1115,10 @@ const d = {
   world: '', worldEmoji: '',
   mood: '', moodEmoji: '',
   action: '', actionEmoji: '',
+  anim: '', animEmoji: '',
+  animStyle: '', animStyleEmoji: '',
+  styleAvatar: 'яркая детская иллюстрация',
+  styleWorld: 'яркая детская иллюстрация',
   songMood: '', rhythm: '', chorus: '',
   completed: [false, false, false, false]
 };
@@ -1093,13 +1174,14 @@ function selectGender(g) {
 // ═══════════════════════════════════════
 function sel(btn, key, value, emoji) {
   btn.closest('.choices').querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
-  // also clear sibling groups for 'who'
   if (key === 'who') {
     document.querySelectorAll('#a-who-animal .choice-btn, #a-who-hero .choice-btn').forEach(b => b.classList.remove('selected'));
   }
   btn.classList.add('selected');
   d[key] = value;
   d[key + 'Emoji'] = emoji || '';
+  if (key === 'styleAvatar') d.styleAvatar = value;
+  if (key === 'styleWorld') d.styleWorld = value;
 }
 
 function customSel(key, value) {
@@ -1132,52 +1214,113 @@ function kto() { return d.gender === 'f' ? 'которая' : 'который'; 
 // ═══════════════════════════════════════
 // PROMPT BUILDERS
 // ═══════════════════════════════════════
+const HEROES = ['робот','супергерой','волшебник','рыцарь','пришелец','ниндзя'];
+function isHero(who) { return HEROES.some(h => who && who.toLowerCase().includes(h)); }
+
+function colorInCostume(color) {
+  const map = {
+    'синий':'синем','красный':'красном','зелёный':'зелёном',
+    'фиолетовый':'фиолетовом','золотой':'золотом','оранжевый':'оранжевом',
+    'чёрный':'чёрном','белый':'белом','радужный':'радужном',
+    'синяя':'синем','красная':'красном','зелёная':'зелёном',
+    'фиолетовая':'фиолетовом','золотая':'золотом','оранжевая':'оранжевом',
+    'чёрная':'чёрном','белая':'белом','радужная':'радужном',
+  };
+  return map[color] || color;
+}
+
 function buildPrompt1() {
-  const who = d.who || 'герой';
+  const who = d.who || (d.gender === 'f' ? 'героиня' : 'герой');
   const trait = adaptTrait(d.trait || 'смелый');
-  const color = adaptColor(d.color || 'яркий');
+  const rawColor = d.color || 'яркий';
+  const color = adaptColor(rawColor);
   const gear = d.gear || '';
   const name = d.name || document.getElementById('input-name').value || 'Герой';
   const extra = document.getElementById('input-extra1').value || '';
+  const style = d.styleAvatar || 'яркая детская иллюстрация';
   d.name = name;
 
-  let p = `Создай мультяшного персонажа на белом фоне. Это ${who} по имени ${name}. ${he()} ${trait}, ${color} цвета.`;
+  let colorPart;
+  if (isHero(who)) {
+    colorPart = `${who} по имени ${name} в ${colorInCostume(color)} костюме`;
+  } else {
+    colorPart = `${color} ${who} по имени ${name}`;
+  }
+
+  let p = `Создай персонажа на белом фоне. Это ${colorPart}. ${he()} ${trait}.`;
   if (gear) p += ` ${his().charAt(0).toUpperCase() + his().slice(1)} есть ${gear}.`;
   if (extra) p += ` ${extra}.`;
-  p += ` Стиль — яркая детская иллюстрация, мультяшный и милый.`;
+  p += ` Стиль — ${style}, мультяшный и милый.`;
   showPrompt(1, p);
 }
 
 function buildPrompt2() {
-  const who = d.who || 'герой';
+  const who = d.who || (d.gender === 'f' ? 'героиня' : 'герой');
   const name = d.name || 'Герой';
-  const color = adaptColor(d.color || '');
+  const rawColor = d.color || '';
+  const color = adaptColor(rawColor);
   const gear = d.gear || '';
   const world = d.world || 'волшебный мир';
   const mood = d.mood || 'волшебное';
   const action = d.action || 'стоит';
   const extra = document.getElementById('input-extra2').value || '';
+  const style = d.styleWorld || 'яркая детская иллюстрация';
+  const heIs = d.gender === 'f' ? 'Она находится' : 'Он находится';
+  const heActs = d.gender === 'f' ? 'Она' : 'Он';
 
-  let p = `Создай картинку с персонажем по имени ${name}. Это ${color ? color + ' ' : ''}${who}`;
-  if (gear) p += ` с ${gear}`;
-  p += `. ${he()} находится в ${world}. Персонаж ${action}. Настроение картинки ${mood}.`;
+  let whoPart;
+  if (isHero(who) && color) {
+    whoPart = `${who} по имени ${name} в ${colorInCostume(color)} костюме`;
+  } else {
+    whoPart = `${color ? color + ' ' : ''}${who} по имени ${name}`;
+  }
+  if (gear) whoPart += ` с ${gear}`;
+
+  let p = `Создай картинку с персонажем. Это ${whoPart}. ${heIs} в ${world}. ${heActs} ${action}. Настроение картинки ${mood}.`;
   if (extra) p += ` ${extra}.`;
-  p += ` Стиль — яркая детская иллюстрация, мультяшный.`;
+  p += ` Стиль — ${style}, мультяшный.`;
   showPrompt(2, p);
+}
+
+function buildPrompt3() {
+  const name = d.name || 'Герой';
+  const who = d.who || (d.gender === 'f' ? 'героиня' : 'герой');
+  const anim = d.anim || 'машет рукой';
+  const animStyle = d.animStyle || 'плавно';
+  const heActs = d.gender === 'f' ? 'Она делает это' : 'Он делает это';
+
+  const p = `Оживи изображение. ${who} по имени ${name} ${anim}. ${heActs} ${animStyle}. Персонаж сохраняет свой внешний вид, одежду и предметы. Фон остаётся таким же. Анимация плавная без резких рывков.`;
+  showPrompt(3, p);
 }
 
 function buildPrompt4() {
   const name = d.name || 'Герой';
-  const who = d.who || 'герой';
+  const who = d.who || (d.gender === 'f' ? 'героиня' : 'герой');
   const trait = adaptTrait(d.trait || 'смелый');
   const world = d.world || 'волшебный мир';
   const mood = d.songMood || 'весёлая';
   const rhythm = d.rhythm || 'быстрый';
   const chorus = d.chorus || document.getElementById('input-chorus').value || 'Вперёд, герой, лети!';
+  const glavnaya = d.gender === 'f' ? 'Главная черта героини' : 'Главная черта героя';
 
-  const p = `Напиши детскую ${mood} песню про ${who} по имени ${name}, ${kto()} живёт в ${world}. Главная черта — ${trait}. Ритм ${rhythm}. Припев: «${chorus}». Стиль — детский, ${mood}.`;
+  const p = `Напиши детскую ${mood} песню про ${who} по имени ${name}, ${kto()} живёт в ${world}. ${glavnaya} — ${trait}. Ритм ${rhythm}. Припев: «${chorus}». Стиль — детский, ${mood}.`;
   showPrompt(4, p);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function showPrompt(n, text) {
   document.getElementById('prompt-' + n + '-text').textContent = text;
@@ -1272,11 +1415,21 @@ function fillDiploma() {
 // ═══════════════════════════════════════
 function confetti() {
   const colors = ['#FFD700','#FF6B9D','#9B4DD4','#28B463','#2E86C1','#FF8C00'];
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 60; i++) {
     setTimeout(() => {
       const el = document.createElement('div');
-      el.className = 'confetti-piece';
-      el.style.cssText = `left:${Math.random()*100}vw;width:${Math.random()*8+5}px;height:${Math.random()*8+5}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${Math.random()*2+2}s;animation-delay:${Math.random()*0.3}s;`;
+      el.style.cssText = `
+        position: fixed;
+        top: -20px;
+        left: ${Math.random()*100}vw;
+        width: ${Math.random()*8+5}px;
+        height: ${Math.random()*8+5}px;
+        background: ${colors[Math.floor(Math.random()*colors.length)]};
+        border-radius: ${Math.random()>.5?'50%':'2px'};
+        pointer-events: none;
+        z-index: 9999;
+        animation: confettiFall ${Math.random()*2+2}s linear ${Math.random()*0.3}s forwards;
+      `;
       document.body.appendChild(el);
       setTimeout(() => el.remove(), 3500);
     }, i * 20);
